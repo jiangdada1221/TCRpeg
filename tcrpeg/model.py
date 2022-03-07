@@ -8,9 +8,9 @@ import numpy as np
 #the idx for AAs start from 2 and the idx for END stoken is 22
 
 
-class TCRpeg(nn.Module):
+class TCRpeg_model(nn.Module):
     def __init__(self,embedding_layer,embedding_size,hidden_size,dropout,max_length=30,sos_idx=1,pad_idx=0,eos_idx=22,device='cuda:0',num_layers=1):
-        super(TCRpeg,self).__init__()
+        super(TCRpeg_model,self).__init__()
         self.max_length = max_length
         self.sos_idx=sos_idx
         self.eos_idx=  eos_idx
@@ -32,7 +32,7 @@ class TCRpeg(nn.Module):
         sorted_lengths, sorted_idx = torch.sort(length,descending=True) #sorting is used for pack_padded_sequence
       
         seqs = seqs[sorted_idx]
-    
+      
         input_emb = self.embedding(seqs).to(torch.float32).permute([1,0,2]) 
    
         packed_input = pack_padded_sequence(input_emb,sorted_lengths.data.tolist())
@@ -47,16 +47,19 @@ class TCRpeg(nn.Module):
         h_n = h_n[reversed_idx] 
     
         logp = nn.functional.log_softmax(self.out_layer(padded_outputs),dim=-1) # batch_size x max_length x 22
-       
+        # print(length)
+        # print(logp[:,length-1,:])
+        # print(logp[:,length-1,:].size())
+        # exit()
         #logp = logp.permute([0,2,1]) #batch_size x 22 x max_length
         if need_hidden:
             return logp,h_n
         else :
             return logp
 
-class TCRpeg_vj(nn.Module):
+class TCRpeg_vj_model(nn.Module):
     def __init__(self,embedding_layer,embedding_size,hidden_size,dropout,max_length=30,sos_idx=1,pad_idx=0,eos_idx=22,device='cuda:0',num_layers=1,num_v=43,num_j=12):
-        super(TCRpeg_vj,self).__init__()
+        super(TCRpeg_vj_model,self).__init__()
         self.max_length = max_length
         self.sos_idx=sos_idx
         self.eos_idx=  eos_idx

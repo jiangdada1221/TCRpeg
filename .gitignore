@@ -1,0 +1,14 @@
+*.txt
+*.csv
+*.tsv
+.ipynb_checkpoints
+__pycache__
+!embedding_32.txt
+results/
+one2many.py
+Untitled.ipynb
+plot*
+motif.py
+loss.py
+aug.py
+caTCR.py

@@ -73,7 +73,7 @@ def word2vec(path,epochs,batch_size,num_seqs,device,record_path,lr=0.0001,window
             x = Variable(get_input_layer(idx_pairs[iter*batch_size:(iter+1)*batch_size,0])).float().to(device)  #nxv
         
             y_true = Variable(torch.from_numpy(np.array(idx_pairs[iter*batch_size:(iter+1)*batch_size,1])).long()).to(device)
-
+            
             z1 = torch.matmul(W1, torch.transpose(x,0,1))
             z2 = torch.matmul(W2, z1) # |v| x batch_size
             

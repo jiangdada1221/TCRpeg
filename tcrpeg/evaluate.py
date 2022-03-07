@@ -2,31 +2,12 @@ import torch
 import numpy as np
 import pandas as pd
 import torch.nn as nn 
-from model import *      
+from tcrpeg.model import *      
 import argparse
-from utils import *
-from tcrpeg import tcrpeg
+from tcrpeg.utils import *
+#from TCRpeg import tcrpeg
 import scipy.stats as stats
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='')
-    #parser.add_argument('--seqs_test_path',type=str)
-    parser.add_argument('--model_path',type=str,default=None)
-    parser.add_argument('--gens_path',type=str,default='none')
-    parser.add_argument('--store_gens_fn',type=str,default='none.txt')
-    parser.add_argument('--info',type=str,default='none')
-    parser.add_argument('--num_to_gen',type=int,default=0)
-    parser.add_argument('--bi_encode',type=int,default=0,help='only 1 can intrigue bi encoding')
-    parser.add_argument('--dropout',type=float,default=0.2)
-    parser.add_argument('--num_layers',type=int,default=1)
-    parser.add_argument('--latent_size',type=int,default=30)
-    parser.add_argument('--beta',type=float,default=0.1)
-    parser.add_argument('--vj_model',type=int,default=0)
-    args = parser.parse_args()
-    vj_model = True if args.vj_model != 0 else False
-    #ensure reproduction
-    torch.manual_seed(0)
-    np.random.seed(0)
+from tqdm import tqdm
 
 class evaluation:
     def __init__(self,model,frac=1.0,path_to_test=None,vj_model=False):
@@ -51,7 +32,7 @@ class evaluation:
         #if whole=True, will return the kl of the whole test set
         #sample 1e5 seqs for kl estimation
         if not whole:
-            seq_data = pd.read_csv(path_to_pdf,compression='gzip').sample(n=int(1e5))
+            seq_data = pd.read_csv(path_to_pdf,compression='gzip').sample(n=int(1e6))
         else :
             seq_data = pd.read_csv(path_to_pdf,compression='gzip')
 
@@ -74,8 +55,10 @@ class evaluation:
             for i in tqdm(range(int(len(seqs)/batch_size)+1)):
                 end = len(seqs) if (i+1) * batch_size > len(seqs) else (i+1) * batch_size
                 seq_batch = seqs[i * batch_size : end]
-                log_probs = self.model.sampling_decoder(seq_batch) #change here
+                log_probs = self.model.sampling_tcrpeg(seq_batch) #change here
                 record[i*batch_size : end] = np.exp(log_probs)
+        record_sum = np.sum(record)
+        record = record/record_sum
         kl = kl_divergence(p_data,record)
         corr = stats.pearsonr(p_data,record)[0]
         print('kl divergence and Pearson correlation coefficient are : {} and {}'.format(str(round(kl,4)),str(round(corr,4))))
