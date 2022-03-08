@@ -12,3 +12,5 @@ motif.py
 loss.py
 aug.py
 caTCR.py
+dist
+setup.cfg
