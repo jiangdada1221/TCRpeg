@@ -4,6 +4,9 @@
 .ipynb_checkpoints
 __pycache__
 !embedding_32.txt
+!classification.csv
+!pdf_test.csv
+!TCRs_train.csv
 results/
 one2many.py
 Untitled.ipynb
