@@ -16,3 +16,4 @@ dist
 setup.cfg
 tcrpeg.egg-info
 .ipynb
+test.py
