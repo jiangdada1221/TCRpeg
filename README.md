@@ -36,7 +36,6 @@ torch >= 1.1.0
 | classification.py                              | Apply TCRpeg-c for classification tasks            |
 | utils.py                                       | N/A (contains util functions)                      |
 | process_data.py                                | Construct the universal TCR pool                   |
-<br />
 
 ## Contact
 
