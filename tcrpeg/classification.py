@@ -59,6 +59,10 @@ class classification:
         #load the pre_trained model
         self.model.load_state_dict(torch.load(path))
         self.model.eval()
+
+    def save(self,path):
+        ###save the classification model to path
+        torch.save(self.model.state_dict(), path)
     
     def train(self,x_train,y_train,epochs,batch_size,lr,val_split=0.1,save_name=None,metric='auroc'):
         '''

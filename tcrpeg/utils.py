@@ -707,7 +707,7 @@ class plotting:
         ax1.set_ylabel(r'$log_{10}P_{infer}$')
         ax1.plot([-5.5, -2.5], [-5.5, -2.5], color='k', linestyle='-', linewidth=2)
         #Plot.density_scatter(np.log10(p_data),np.log10(p_tcrpeg),bins = [10,50],ax=ax1,fig_name='prob_tcrpeg',method='TCRpeg')
-        self.density_scatter(np.log10(p_data),np.log10(p_infer),bins = [10,50],ax=ax1,fig_name='prob_tcrpeg',method='TCRpeg')
+        self.density_scatter(np.log10(p_data),np.log10(p_infer),bins = [10,50],ax=ax1,method='TCRpeg')
         r = pr(p_data,p_infer)[0]    
         ax1.text(0.65, 0.32, r'r = %0.3f' % (r) , ha='center', va='center',transform = ax1.transAxes,size=10,color='k')
         plt.tight_layout()
