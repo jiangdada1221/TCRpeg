@@ -25,7 +25,18 @@ torch >= 1.1.0
 
 ## Usage instructions
 
- We provide a tutorial jupyter notebook under the tcrpeg folder. It contains most functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation.
+ We provide a tutorial jupyter notebook named tutorial.ipynb. It contains most of the functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. The python scripts and their usages are shown below: <br />
+
+| Module name                                    | Usage                                              |    
+|------------------------------------------------|----------------------------------------------------|
+| TCRpeg.py                                      | Contain most functions of TCRpeg                   |
+| evaluate.py                                    | Evaluate the performance of probability inference  |
+| word2vec.py                                    | word2vec model for obtaining embeddings of AAs     |
+| model.py                                       | Deep learning models of TCRpeg,TCRpeg-c,TCRpeg_vj  |
+| classification.py                              | Apply TCRpeg-c for classification tasks            |
+| utils.py                                       | N/A (contains util functions)                      |
+| process_data.py                                | Construct the universal TCR pool                   |
+<br />
 
 ## Contact
 
