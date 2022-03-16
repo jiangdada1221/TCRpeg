@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 import pandas as pd
 
-def word2vec(path,epochs,batch_size,device,record_path=None,lr=0.0001,window_size=2):
+def word2vec(path,epochs,batch_size,device,record_path=None,lr=0.0001,window_size=2,embedding_dims = 32):
     '''
     Training the word2vec for embedding of amino acids
     @path: path to the file that records the sequences
@@ -56,7 +56,6 @@ def word2vec(path,epochs,batch_size,device,record_path=None,lr=0.0001,window_siz
                 idx_pairs.append((indices[center_word_pos], context_word_idx))
 
     idx_pairs = np.array(idx_pairs) # N x 2
-    embedding_dims = 32
     W1 = Variable(torch.randn(embedding_dims, vocabulary_size,device=device).float(), requires_grad=True) 
     W2 = Variable(torch.randn(vocabulary_size, embedding_dims,device=device).float(), requires_grad=True) 
     num_epochs = epochs
