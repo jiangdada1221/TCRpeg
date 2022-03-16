@@ -40,9 +40,10 @@ class TCRpeg:
 
         @evaluate & path_test : If you want to evaluate on test set, you should set evaluate=1, path_test='path_to_test_set'
                                 Also accepts list as input. Same with 'path_train'
-        @embedding_path: Recorded trained embeddings for amino acids
-        @vs_list & js_list: The list of v and j genes. Used when you're using the tcrpeg_vj model; 
-                           The default v and j gene lists contain 43 and 12 genes respectively
+        @embedding_path: Recorded trained embeddings for amino acids (22 x embedding_size)
+        @vs_list & js_list: The list of v and j genes. Only used when you're using the tcrpeg_vj model; 
+                           The default v and j gene lists contain 43 and 12 genes respectively. If your TCR dataset
+                           contains v,or j genes that are not included the default vs_list/js_list, yould should provide it.
                            type(vs_list) should be a list
         '''
 
@@ -182,7 +183,13 @@ class TCRpeg:
         return nll_loss
 
     def create_model(self, load=False, path=None,vj=False):
-        print("Built a decoder only model")
+        '''
+        Create the TCRpeg (TCRpeg_vj) model 
+        @load: whether to load from pre-trained model
+        @path: the path to pre-trained model, only need to specify when @load=True
+        @vj: if set to True, will create the TCRpeg_vj model
+        '''
+
         if vj:
             model = TCRpeg_vj_model(
                 self.embedding_layer,
@@ -205,28 +212,16 @@ class TCRpeg:
             model.load_state_dict(torch.load(path))
             model.eval()
         self.model = model.to(self.device)
-        # return model
-
-    def create_m2oModel(self, load=False, path=None):
-        print("Built a decoder only model")
-        
-        model = TCRpeg_Many2One(
-                self.embedding_layer,
-                self.embedding_size,
-                self.hidden_size,
-                dropout=self.dropout,
-                num_layers=self.num_layers)
-        model.train()
-        if load:
-            model.load_state_dict(torch.load(path))
-            model.eval()
-        self.cmodel = model.to(self.device)
+        # return model    
 
     def save(self, path):
+        '''
+        Save the model to the @path you specify
+        '''
         torch.save(self.model.state_dict(), path)
 
     def sampling_tcrpeg(self, seqs):
-        '''
+        '''        
         @seqs: list containing CDR3 sequences
         #return: the log_prob of the input sequences
         '''
@@ -268,7 +263,7 @@ class TCRpeg:
         '''
         @seqs: list containing CDR3 sequences
         #return: the log_prob of the input sequences
-        inferring in batch
+        Inferring in batch
         '''
         logpx_given_z = np.zeros(len(seqs))
         with torch.no_grad():
@@ -302,15 +297,14 @@ class TCRpeg:
             info = 'Not provided'
         if model_name is None:
             model_name = 'Not provided'
+        
 
-
-        print(record)
-
-        start_time = datetime.now().strftime("%m_%d_%Y-%H:%M:%S")
+        # start_time = datetime.now().strftime("%m_%d_%Y-%H:%M:%S")
         if record:
-            dir = record_dir + "/" + start_time.split("-")[1]
-            if not os.path.exists(dir):
-                os.mkdir(dir)
+            # dir = record_dir + "/" + start_time.split("-")[1]
+            dir = record_dir 
+            # if not os.path.exists(dir):
+            #     os.mkdir(dir)
             with open(dir + "/logs.txt", "a") as f:
                 f.write(info + "\n")
         aas_seqs = self.aas_seqs_train
@@ -344,7 +338,7 @@ class TCRpeg:
                 with open(dir + "/logs.txt", "a") as f:
                     f.write(
                         "For {} model, trained at {}_th epoch with nll (train) are {}\n".format(
-                            start_time + "_" + model_name,
+                            model_name,
                             epoch + 1,
                             sum(nll_loss_) / num_batch,
                         )
@@ -357,7 +351,7 @@ class TCRpeg:
                         dir
                         + "/"
                         + model_name
-                        + "_{}_{}.pth".format(start_time, str(epoch + 1))
+                        + "_{}.pth".format(str(epoch + 1))
                     )
     
             if epoch != 0 and epoch % ((epochs) // 2) == 0 :
@@ -367,12 +361,16 @@ class TCRpeg:
         print("Done training")
         if record:
             self.save(
-                dir + "/" + model_name + "_{}_{}.pth".format(start_time, str(epoch + 1))
+                dir + "/" + model_name + "_{}.pth".format(str(epoch + 1))
             )
     
     def evaluate(self,batch_size,vj=False):
         '''
         Evaluation on test set for tcrpeg model
+        @batch_size: batch_size for loading data
+        @vj: whether the model is TCRpeg or TCRpeg_vj
+
+        @return: (nll_loss,v_loss,j_loss) if vj is True else return the nll_loss
         '''
         aas_val = self.aas_seqs_test
         with torch.no_grad():
@@ -405,10 +403,18 @@ class TCRpeg:
                 nll_test.append(nllloss.item() / batch_size)
         if vj:
             print("nll_loss,v_loss,j_loss for test set: {0}, {1}, {2}".format(sum(nll_test) / num_batch,sum(v_test_) / num_batch,sum(j_test_) / num_batch))
+            return sum(nll_test) / num_batch,sum(v_test_) / num_batch,sum(j_test_) / num_batch
+
         else :
             print("nll_loss for val: {0}".format(sum(nll_test) / num_batch))
+            return sum(nll_test) / num_batch
+        
 
     def train_tcrpeg_vj(self, epochs, batch_size, lr, info=None, model_name=None,record_dir=None):
+        '''
+        Train a TCRpeg with v j usage
+        Same parameter setting as @train_tcrpeg
+        '''
         print("begin the training process")
         optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
         batch_size = batch_size
@@ -416,16 +422,17 @@ class TCRpeg:
         aas_seqs = self.aas_seqs_train
         vs_,js_ = np.array(self.vs_train),np.array(self.js_train)
         record = True if record_dir is not None else False
-        start_time = datetime.now().strftime("%m_%d_%Y-%H:%M:%S")
+        #start_time = datetime.now().strftime("%m_%d_%Y-%H:%M:%S")
         if info is None:
             info = 'Not provided'
         if model_name is None:
             model_name = 'Not provided'
 
         if record:
-            dir = record_dir + "/" + start_time.split("-")[1]
-            if not os.path.exists(dir):
-                os.mkdir(dir)
+            #dir = record_dir + "/" + start_time.split("-")[1]
+            dir = record_dir
+            # if not os.path.exists(dir):
+            #     os.mkdir(dir)
             with open(dir + "/logs.txt", "a") as f:
                 f.write(info + "\n")
         infer = np.arange(len(self.aas_seqs_train)) #used to shuffle the training data
@@ -474,7 +481,7 @@ class TCRpeg:
                 with open(dir + "/logs.txt", "a") as f:
                     f.write(
                         "For {} model, trained at {}_th epoch with nll (train),v,j are {},{},{}\n".format(
-                            start_time + "_" + model_name,
+                            model_name,
                             epoch + 1,
                             sum(nll_loss_) / num_batch,
                             sum(v_loss_) / num_batch,
@@ -487,7 +494,7 @@ class TCRpeg:
                         dir
                         + "/"
                         + model_name
-                        + "_{}_{}.pth".format(start_time, str(epoch + 1))
+                        + "_{}.pth".format(str(epoch + 1))
                     )
             if epoch != 0 and epoch % ((epochs) // 2) == 0:
                 print('The learning rate has beed reduced')
@@ -496,7 +503,7 @@ class TCRpeg:
         print("Done training")
         if record:
             self.save(
-                dir + "/" + model_name + "_{}_{}.pth".format(start_time, str(epoch + 1))
+                dir + "/" + model_name + "_{}.pth".format( str(epoch + 1))
             )
 
     def generate_decoder(self, num_to_gen, record_path=None):
@@ -689,119 +696,6 @@ class TCRpeg:
             #embedding = embedding.view(batch_size,-1)
         return embedding.detach().cpu().numpy()
 
-    def train_many2one(self, xtrain,ytrain,epochs, batch_size, lr, info=None, model_name=None,record_dir=None):
-        '''
-        @epochs: epochs
-        @batch_size: batch_size
-        @lr: initial learning rate; The learning rate will reduced by lr=lr*0.2 at the middle of training
-        @info: the information you want to record at the top of the log file (only activated when you specify the record dir)
-        @model_name: the models will be saved as model_name.pth (only activated when you specify the record_dir)
-        @record_dir: the directory you want to record your models; if not provided, the trained models will not be saved
-        '''
-        print("begin the training process")
-        optimizer = torch.optim.Adam(self.cmodel.parameters(), lr=lr)
-        batch_size = batch_size
-        epochs = epochs
-        record = True if record_dir is not None else False
-        if info is None:
-            info = 'Not provided'
-        if model_name is None:
-            model_name = 'Not provided'
-
-        loss_fn = nn.BCELoss()
-        
-        aas_seqs = np.array(xtrain)
-        labels = np.array(ytrain)
-        infer = list(range(len(aas_seqs)))
-        
-        for epoch in range(epochs):
-            print("begin epoch :", epoch + 1)
-            self.cmodel.train()
-            np.random.shuffle(infer)
-            aas_seqs,labels = aas_seqs[infer],labels[infer]
-            nll_loss_ = []
-            num_batch = len(aas_seqs) // batch_size
-            for iter in tqdm(range(len(aas_seqs) // batch_size)):
-                # seqs = aas_seqs[infer_arr[iter * batch_size : (iter+1) * batch_size]]
-                seqs = aas_seqs[iter * batch_size : (iter + 1) * batch_size]
-                labs = labels[iter * batch_size : (iter + 1) * batch_size]
-                inputs, targets, lengths = self.aas2embs(seqs) #embeds the sequences
-                inputs, targets, lengths = (
-                    torch.LongTensor(inputs).to(self.device),
-                    torch.LongTensor(targets).to(self.device),
-                    torch.LongTensor(lengths).to(self.device),
-                )
-                labs = torch.FloatTensor(labs).to(self.device)
-
-                logp = self.cmodel(inputs, lengths)  #batch_size, 
-                nllloss = loss_fn(logp, labs)
-                nll_loss_.append(nllloss.item())
-                #loss = nllloss / batch_size  # remember to multiply the beta!
-                optimizer.zero_grad()
-                nllloss.backward()
-                optimizer.step()
-            print("nll_loss: {0}".format(sum(nll_loss_) / num_batch))
-            if record:
-                with open(record_dir + "/logs.txt", "a") as f:
-                    f.write(
-                        "For {} model, trained at {}_th epoch with nll (train) are {}\n".format(
-                            "_" + model_name,
-                            epoch + 1,
-                            sum(nll_loss_) / num_batch,
-                        )
-                    )
-        
-                # if epoch % 3 == 0:
-                #     # early_stopping.save_checkpoint(sum(elbo_test)/num_batch,model)
-                #     print('wrong enter')
-                #     self.save(
-                #         dir
-                #         + "/"
-                #         + model_name
-                #         + "_{}_{}.pth".format(start_time, str(epoch + 1))
-                #     )
-    
-            if epoch != 0 and epoch % ((epochs) // 2) == 0 :
-                print('The learning rate has beed reduced')
-                optimizer.param_groups[0]["lr"] = lr * 0.2
-
-        print("Done training")
-        # if record:
-        #     self.save(
-        #         dir + "/" + model_name + "_{}_{}.pth".format(start_time, str(epoch + 1))
-        #     )
-    def evaluate_many2one(self,xtest,ytest,batch_size):
-        '''
-        Evaluation on test set for tcrpeg model
-        '''
-        aas_val = xtest
-        loss_fn = nn.BCELoss()
-        y_pres_whole = []
-        with torch.no_grad():
-            nll_test = []
-            v_test_,j_test_ = [],[]
-            num_batch = ceil(len(aas_val) / batch_size)
-            for iter in tqdm(range(num_batch)):
-                end = (iter+1) * batch_size if iter != num_batch-1 else len(xtest) #to make sure every data point is used
-                seqs = aas_val[iter * batch_size : end]
-                labs = ytest[iter * batch_size : end]
-                inputs, targets, lengths = self.aas2embs(seqs)
-                inputs, targets, lengths = (
-                    torch.LongTensor(inputs).to(self.device),
-                    torch.LongTensor(targets).to(self.device),
-                    torch.LongTensor(lengths).to(self.device),
-                )
-                labs = torch.FloatTensor(labs).to(self.device)
-                logp = self.cmodel(inputs, lengths) #batch_size,
-                y_pres_whole += list(logp.detach().cpu().numpy())
-                nllloss = loss_fn(
-                    logp, labs
-                )
-                nll_test.append(nllloss.item())
-       
-        print("nll_loss for val: {0}".format(sum(nll_test) / num_batch))
-        assert len(ytest) == len(y_pres_whole)
-        return y_pres_whole,ytest
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")

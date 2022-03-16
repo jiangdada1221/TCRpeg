@@ -12,6 +12,7 @@ from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import precision_recall_curve as pccurve
 from sklearn.metrics import average_precision_score as AUPRC
+from scipy.stats import pearsonr as pr
 
 def kl_divergence(dis1,dis2,avoid_zeros=True):
     assert np.abs(np.sum(dis1)-1) <=0.01, 'you need to normalize' 
@@ -45,13 +46,14 @@ class plotting:
         if type(seq) is not str:
             return False
         if len(seq) <= 2:
-
             return False
         if seq[-1] != 'F' and seq[-2:] != 'YV':
 
             return False
         if seq[0] != 'C':
 
+            return False
+        if 's' in seq or 'e' in seq:
             return False
         return True
 
@@ -634,4 +636,82 @@ class plotting:
         else :
             plt.show()
 
+    def Length_Dis(self,seqs1:list,seqs2 :list,save_path=None):
+        'plot the length distribution for a single model in one experiment'
 
+        lens1 = [seq for seq in seqs1 if self.valid_seq(seq)]
+        lens1,lens2 = [len(seq) for seq in seqs1],[len(seq) for seq in seqs2]
+        len2count1,len2count2 = defaultdict(int),defaultdict(int)
+        for i in range(len(lens1)):        
+            len2count1[lens1[i]] += 1
+        for i in range(len(lens2)):
+            len2count2[lens2[i]] += 1
+        k1,k2 = list(len2count1.keys()),list(len2count2.keys())
+        x_axis = list(range(1,31))
+        fre1,fre2 = [len2count1[k]/len(lens1) for k in x_axis],[len2count2[k]/len(lens2) for k in x_axis]
+        plt.figure()
+        plt.plot(x_axis,fre1,x_axis,fre2)
+        plt.legend(['Data','Generated'])
+        plt.xlabel('TCR Length')
+        plt.ylabel('Frequency')
+        if save_path is not None:
+            plt.savefig(save_path+ '.png')
+        else :
+            plt.show()
+
+    def AAs_Dis(self,seqs1:list,seqs2:list,save_path = None):
+        'plot the position distribution for AA, for single model and single experiment'        
+        aa2pos_dic1 = [defaultdict(int) for _ in range(20)]
+        aa2pos_dic2 = [defaultdict(int) for _ in range(20)]
+        for i in range(len(seqs1)):
+            seq1 = seqs1[i]
+            if not self.valid_seq(seq1):
+                continue
+            for j,aa in enumerate(seq1):
+                #if aa == 'e' or 
+                aa2pos_dic1[self.aa2idx[aa]][j+1] += 1
+        for i in range(len(seqs2)):
+            seq2 = seqs2[i]
+            if not self.valid_seq(seq2):
+                continue
+            for j,aa in enumerate(seq2):
+                aa2pos_dic2[self.aa2idx[aa]][j+1] += 1
+        
+        fig,axs = plt.subplots(4,5,figsize=(20,15))
+        x_axis = list(range(1,31))
+        for row in range(4):
+            for col in range(5):
+                index = row*5 + col
+                d1,d2,aa = aa2pos_dic1[index],aa2pos_dic2[index],self.idx2aa[index]
+                y1,y2 = [d1[k] for k in x_axis],[d2[k] for k in x_axis]
+                sum1,sum2 = sum(y1),sum(y2)            
+                y1,y2 = [k/sum1 for k in y1],[k/sum2 for k in y2]
+                axs[row,col].plot(x_axis,y1,x_axis,y2)
+
+                axs[row,col].legend(['Data','Generated'])
+                axs[row,col].set_title('AA: ' +aa)
+        plt.tight_layout()
+        if save_path is not None:
+            plt.savefig(save_path +  '.png')
+        else :
+            plt.show()
+
+    def plot_prob(self,p_data,p_infer,save_path=None):
+        'plot the scatter plot for Fig.1 in the paper'
+        fig=plt.figure(figsize=(4,2),dpi=200)
+        ax1=plt.subplot(111)
+        ax1.set_ylim([-21,0])
+        ax1.set_xlim([-5.5,-2.5])
+        ax1.locator_params(nbins=4)
+        ax1.set_xlabel(r'$log_{10}P_{data}$')
+        ax1.set_ylabel(r'$log_{10}P_{infer}$')
+        ax1.plot([-5.5, -2.5], [-5.5, -2.5], color='k', linestyle='-', linewidth=2)
+        #Plot.density_scatter(np.log10(p_data),np.log10(p_tcrpeg),bins = [10,50],ax=ax1,fig_name='prob_tcrpeg',method='TCRpeg')
+        self.density_scatter(np.log10(p_data),np.log10(p_infer),bins = [10,50],ax=ax1,fig_name='prob_tcrpeg',method='TCRpeg')
+        r = pr(p_data,p_infer)[0]    
+        ax1.text(0.65, 0.32, r'r = %0.3f' % (r) , ha='center', va='center',transform = ax1.transAxes,size=10,color='k')
+        plt.tight_layout()
+        if save_path is not None:
+            plt.savefig(save_path+'.jpg',dpi=200)
+        else :
+            plt.show()

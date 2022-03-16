@@ -10,10 +10,17 @@ import copy
 
 class classification:
     '''
-    Simple FC models that utilize the embedding from trained tcrpeg model
+    TCRpeg-c: Simple FCN models that utilize the embedding from trained tcrpeg model
     '''
-    def __init__(self,tcrpeg,embedding_size,device='cuda:0',dropout=0.0,model_size='medium',last_layer=False):
-
+    def __init__(self,tcrpeg,embedding_size,device='cuda:0',dropout=0.0,model_size='large',last_layer=False):
+        '''
+        @tcrpeg: the pretrained model
+        @embedding_size: the size of the embedding vectors
+        @device: specify using GPU or CPU
+        @dropout: dropout rate for FCN models
+        @model_size: model size of the FCN model, options: {'small','medium','large'}
+        @last_layer: whether using only the last hidden layer or not. If set to False, embedding_size should be #layers*hidden_size 
+        '''
         self.emb_model = tcrpeg
         self.emb_model.model.eval()
         self.device = device
@@ -32,6 +39,9 @@ class classification:
         
     @classmethod
     def valid_seq(self,seq):
+        '''
+        To test whether a given seq is a valid TCR_beta sequence
+        '''
         if type(seq) is not str:
             return False
         if len(seq) <= 2:
@@ -52,6 +62,8 @@ class classification:
     
     def train(self,x_train,y_train,epochs,batch_size,lr,val_split=0.1,save_name=None,metric='auroc'):
         '''
+        @x_train: a list of seqs
+        @y_train: a list containing the labels (0s and 1s)
         @epochs: number of epoch
         @batch_size: batch_size
         @lr: initial learning rate
@@ -121,6 +133,15 @@ class classification:
             torch.save(best_model.state_dict(),'results/'+save_name + '.pth')
 
     def evaluate(self,x_test,y_test,batch_size,record_path=None):
+        '''
+        Evaluation on test set
+        @x_train: a list of seqs
+        @y_train: a list containing the labels (0s and 1s)
+        @batch_size: batch_size
+        @record_path: write the values of evaluation metrics to the file under given path specified by record_path
+
+        @return: (AUC,AUPRC, a list containing the predicted scores, a list containing the corresponding true labels)
+        '''
         time_now = datetime.now().strftime("%m_%d_%Y-%H:%M:%S")
         y_pres_whole = []
         y_trues = []

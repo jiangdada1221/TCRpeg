@@ -6,12 +6,11 @@ import torch.nn.functional as F
 from tqdm import tqdm
 import pandas as pd
 
-def word2vec(path,epochs,batch_size,num_seqs,device,record_path,lr=0.0001,window_size=2):
+def word2vec(path,epochs,batch_size,device,record_path=None,lr=0.0001,window_size=2):
     '''
     Training the word2vec for embedding of amino acids
     @path: path to the file that records the sequences
-    @batch_size: batch_size
-    @num_seqs: number of seqs used in training (randomly sampled from the whole seqs)
+    @batch_size: batch_size    
     @device: GPU or CPU; 'cuda:0'-GPU, 'cpu'-CPU
     @record_path: path to record the embedding for each AA; should ended with '.txt'
     @lr: initial learning rate
@@ -25,7 +24,7 @@ def word2vec(path,epochs,batch_size,num_seqs,device,record_path,lr=0.0001,window
         x[list(range(len(word_idxs))),word_idxs] = 1.0  # n x emb
         assert torch.sum(x) == len(word_idxs)
         return x #one hot vector
-    assert record_path.endswith('.txt')
+    #assert record_path.endswith('.txt')
 
     #list of a string is served as default tokenizer
     aas = 'sACDEFGHIKLMNPQRSTVWYe'
@@ -33,12 +32,11 @@ def word2vec(path,epochs,batch_size,num_seqs,device,record_path,lr=0.0001,window
     idx2aa = {v: k for k, v in aa2idx.items()}
     vocabulary_size = len(aas)
     batch_size = batch_size
-    device = device
-    num_seqs = num_seqs
-    if type(path) == list:
+    device = device    
+    if isinstance(path,list) or isinstance(path,np.ndarray):
         tcr_sequences = np.array(path)
     else :
-        tcr_sequences = pd.read_csv(path,sep='\t').sample(n=num_seqs)['seq'].values
+        tcr_sequences = pd.read_csv(path,sep='\t')['seq'].values
 
     tokenized_seqs = [['s']+list(seq)+['e'] for seq in tcr_sequences]
 
@@ -65,8 +63,7 @@ def word2vec(path,epochs,batch_size,num_seqs,device,record_path,lr=0.0001,window
     learning_rate = lr
 
     for epo in range(num_epochs):
-        loss_val = 0
-        #for data, target in tqdm(idx_pairs):
+        loss_val = 0        
         iter = len(idx_pairs) // batch_size 
         for iter in tqdm(range(iter)):
             #x = Variable(get_input_layer(data)).float()
@@ -88,19 +85,20 @@ def word2vec(path,epochs,batch_size,num_seqs,device,record_path,lr=0.0001,window
             W2.grad.data.zero_()
             
         if epo % 2 == 0:    
-            print(f'Loss at epo {epo}: {loss_val * 32 /len(idx_pairs)}')
+            print(f'Loss at epo {epo+1}: {loss_val * 32 /len(idx_pairs)}')
         if epo % 40 == 0:
             learning_rate *= 0.2
 
     embedding = W1.cpu().data.numpy()
-    with open(record_path, 'w') as f:
-        for i in range(22):
-            f.write(aas[i]+',')
-            for j in range(embedding_dims):
-                f.write(str(embedding[j,i]))
-                if j != embedding_dims-1:
-                    f.write(',')
-            f.write('\n')
+    if record_path is not None:
+        with open(record_path, 'w') as f:
+            for i in range(22):
+                f.write(aas[i]+',')
+                for j in range(embedding_dims):
+                    f.write(str(embedding[j,i]))
+                    if j != embedding_dims-1:
+                        f.write(',')
+                f.write('\n')
     return embedding
 
 
