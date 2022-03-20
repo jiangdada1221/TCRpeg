@@ -25,7 +25,7 @@ torch >= 1.1.0
 
 ## Usage instructions
 
- We provide a tutorial jupyter notebook named tutorial.ipynb. It contains most of the functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. The python scripts and their usages are shown below: <br />
+ We provide a tutorial jupyter notebook named [tutorial.ipynb](https://github.com/jiangdada1221/TCRpeg/blob/main/tutorial.ipynb). It contains most of the functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. The python scripts and their usages are shown below: <br />
 
 | Module name                                    | Usage                                              |    
 |------------------------------------------------|----------------------------------------------------|
