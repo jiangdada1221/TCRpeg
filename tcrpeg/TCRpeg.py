@@ -101,8 +101,11 @@ class TCRpeg:
         self.evaluate = True if evaluate != 0 else False
         if load_data:
             if vj:
-                #####remember to add 
-                self.aas_seqs_train,self.vs_train,self.js_train = self.load_data(path_train,vj=True)
+                if type(path_train) is not str:
+                    self.aas_seqs_train = np.array([x[0] for x in path_train])
+                    self.vs_train,self.js_train=[x[1] for x in path_train],[x[2] for x in path_train]
+                else :
+                    self.aas_seqs_train,self.vs_train,self.js_train = self.load_data(path_train,vj=True)
                 self.vs_train,self.js_train = self.gene2embs(self.vs_train,'v'),self.gene2embs(self.js_train,'j')
             else :
                 if type(path_train) is not str:
@@ -110,11 +113,19 @@ class TCRpeg:
                 else :
                     self.aas_seqs_train = self.load_data(path_train)
             if self.evaluate:
+                #remember to add!!
                 if vj is not None:
-                    self.aas_seqs_test,self.vs_test,self.js_test = self.load_data(path_test)
+                    if type(path_train) is not str:
+                        self.aas_seqs_test = np.array([x[0] for x in path_test])
+                        self.vs_test,self.js_test=[x[1] for x in path_test],[x[2] for x in path_test]
+                    else :
+                        self.aas_seqs_test,self.vs_test,self.js_test = self.load_data(path_test)
                     self.vs_test,self.js_test = self.gene2embs(self.vs_test,'v'),self.gene2embs(self.js_test,'j')
                 else :
-                    self.aas_seqs_test = self.load_data(path_test)
+                    if type(path_test) is not str:
+                        self.aas_seqs_test = path_test
+                    else :
+                        self.aas_seqs_test = self.load_data(path_test)
             print("Have loaded the data, total training seqs :", len(self.aas_seqs_train))
 
     def aas2embs(self, seqs):
@@ -197,7 +208,9 @@ class TCRpeg:
                 self.hidden_size,
                 self.dropout,
                 self.max_length,
-                num_layers=self.num_layers           
+                num_layers=self.num_layers  ,
+                num_v = len(self.vs_list),
+                num_j = len(self.js_list)
             )
         else :
             model = TCRpeg_model(
