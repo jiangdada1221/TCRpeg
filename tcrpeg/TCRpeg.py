@@ -212,6 +212,7 @@ class TCRpeg:
                 num_v = len(self.vs_list),
                 num_j = len(self.js_list)
             )
+            self.vj=True
         else :
             model = TCRpeg_model(
                 self.embedding_layer,
@@ -220,6 +221,7 @@ class TCRpeg:
                 dropout=self.dropout,
                 num_layers=self.num_layers
                 )
+            self.vj=False
         model.train()
         if load:
             model.load_state_dict(torch.load(path))
@@ -684,7 +686,7 @@ class TCRpeg:
                     f.write(s + ',' + vs_whole[i] + ',' + js_whole[i] + "\n")
         return [seqs,vs_whole,js_whole]
 
-    def get_embedding(self,seqs,last_layer=False,vj=False):
+    def get_embedding(self,seqs,last_layer=False):
         '''
         Get the embedding of CDR3 sequences
         @seqs: a list containing the CDR3 sequences
@@ -698,7 +700,7 @@ class TCRpeg:
         with torch.no_grad():
             inputs,targets,lengths = self.aas2embs(seqs)
             inputs,targets,lengths = torch.LongTensor(inputs).to(self.device),torch.LongTensor(targets).to(self.device),torch.LongTensor(lengths).to(self.device)
-            if vj:
+            if self.vj:
                 _,_,_,embedding = self.model(inputs,lengths,True)
             else :
                 _,embedding= self.model(inputs,lengths,True)
