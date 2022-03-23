@@ -21,7 +21,7 @@ torch >= 1.1.0
 
 ## Data
 
- All the data used in the paper is publicly available, so we suggest readers refer to the original papers for more details. We also upload the processed data which can be downloaded via https:xxxxx
+ All the data used in the paper is publicly available, so we suggest readers refer to the original papers for more details. We also upload the processed data which can be downloaded via [this link](https://drive.google.com/file/d/1FUsZRxoTQLi57SdY4yXob2X22LmK7B6E/view?usp=sharing)
 
 ## Usage instructions
 
