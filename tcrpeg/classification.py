@@ -53,6 +53,9 @@ class classification:
         if seq[0] != 'C':
 
             return False
+            
+        if ('s' in seq) or ('e' in seq):
+            return False
         return True
 
     def load_model(self,path):
