@@ -2,7 +2,8 @@ import torch
 import numpy as np
 import pandas as pd
 import torch.nn as nn
-from tcrpeg.model import TCRpeg_model, TCRpeg_vj_model
+#from tcrpeg.model import TCRpeg_model, TCRpeg_vj_model
+from model import TCRpeg_model,TCRpeg_vj_model
 from tqdm import tqdm
 import time
 from datetime import datetime
@@ -700,7 +701,7 @@ class TCRpeg:
         with torch.no_grad():
             inputs,targets,lengths = self.aas2embs(seqs)
             inputs,targets,lengths = torch.LongTensor(inputs).to(self.device),torch.LongTensor(targets).to(self.device),torch.LongTensor(lengths).to(self.device)
-            if self.vj:
+            if self.vj:                
                 _,_,_,embedding = self.model(inputs,lengths,True)
             else :
                 _,embedding= self.model(inputs,lengths,True)
