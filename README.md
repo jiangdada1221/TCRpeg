@@ -25,22 +25,20 @@ torch >= 1.1.0
 
 ## Usage instructions
 
-The basic usage is probability inference:
+Define and train TCRpeg model:
 ```
 from tcrpeg.TCRpeg import TCRpeg
 model = TCRpeg(embedding_path='tcrpeg/data/embedding_32.txt',load=True, path_train=tcrs) 
-# embedding_32.txt records the numerical embeddings for each AA; 'tcrs' is the TCR repertoire ([tcr1,tcr2,....])
+#'embedding_32.txt' records the numerical embeddings for each AA; We provide it under the 'tcrpeg/data/' folder.
+#'tcrs' is the TCR repertoire ([tcr1,tcr2,....])
 model.create_model() #initialize the TCRpeg model
 model.train_tcrpeg(epochs=20, batch_size= 32, lr=1e-3) 
 ```
 Use the pretrained TCRpeg model for downstream applications:
 ```
-#probability inference
-log_probs = model.sampling_tcrpeg_batch(tcrs) 
-#generation
-new_tcrs = model.generate_tcrpeg(num_to_gen=1000, batch_size= 100)
-#embeddings for tcrs
-embs = model.get_embedding(tcrs)
+log_probs = model.sampling_tcrpeg_batch(tcrs)   #probability inference
+new_tcrs = model.generate_tcrpeg(num_to_gen=1000, batch_size= 100)    #generation
+embs = model.get_embedding(tcrs)    #embeddings for tcrs
 ```
 
  We provide a tutorial jupyter notebook named [tutorial.ipynb](https://github.com/jiangdada1221/TCRpeg/blob/main/tutorial.ipynb). It contains most of the functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. The python scripts and their usages are shown below: <br />
