@@ -28,7 +28,7 @@ torch >= 1.1.0
 Define and train TCRpeg model:
 ```
 from tcrpeg.TCRpeg import TCRpeg
-model = TCRpeg(embedding_path='tcrpeg/data/embedding_32.txt',load=True, path_train=tcrs) 
+model = TCRpeg(embedding_path='tcrpeg/data/embedding_32.txt',load_data=True, path_train=tcrs) 
 #'embedding_32.txt' records the numerical embeddings for each AA; We provide it under the 'tcrpeg/data/' folder.
 #'tcrs' is the TCR repertoire ([tcr1,tcr2,....])
 model.create_model() #initialize the TCRpeg model
