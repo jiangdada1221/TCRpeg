@@ -2,8 +2,8 @@ import torch
 import numpy as np
 import pandas as pd
 import torch.nn as nn
-#from tcrpeg.model import TCRpeg_model, TCRpeg_vj_model
-from model import TCRpeg_model,TCRpeg_vj_model
+from tcrpeg.model import TCRpeg_model, TCRpeg_vj_model
+# from model import TCRpeg_model,TCRpeg_vj_model
 from tqdm import tqdm
 import time
 from datetime import datetime

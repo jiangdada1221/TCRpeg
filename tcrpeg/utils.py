@@ -201,22 +201,7 @@ class plotting:
         '''
         each input should be in the format of (mean_freqs,errs)
         also should be one-to-one with the gene list
-        '''
-        # vs_1 = defaultdict(int)
-        # vs_2 = defaultdict(int)
-        # for i in range(len(seqs1)):
-        #     vs_1[seqs1[i]] += 1
-        # for s in seqs2:
-        #     vs_2[s] += 1
-        # x_axis = self.vs
-        # y1,y2 = [vs_1[x]/len(seqs1) for x in vs], [vs_2[x]/len(seqs2) for x in vs]
-        # kl = kl_divergence(y1,y2)
-        # plt.figure()
-        # plt.plot(x_axis,y1,'o',x_axis,y2,'o')
-        # #plt.plot(x_axis,y1,x_axis,y2)
-        # plt.legend(['fre1','fre2'])
-        # plt.title(str(kl))
-        # plt.savefig('results/pictures/'+fig_name + '.png')
+        '''   
         plt.figure(figsize=(12,4))
         order=np.argsort(data[0])[::-1]
         x_axis = np.array(list(range(len(self.vs))))
@@ -250,6 +235,66 @@ class plotting:
         plt.xticks(rotation=45)
         plt.ylabel('Frequency',size=12)
         plt.xlabel('J Gene',size=12)
+        plt.grid()
+        plt.legend()
+        #plt.title('J USAGE DISTRIBUTION',fontsize=20)
+        plt.tight_layout()
+        if fig_name is not None:
+            plt.savefig('results/pictures/'+fig_name + '.jpg',dpi=200)
+        else: plt.show()
+
+    def J_Dis(self,data,tcrpeg,fig_name=None):
+        #for single input
+        #process data
+        
+        plt.figure(figsize=(6,4))        
+        data_, tcrpeg_ = [0]*len(self.js),[0] * len(self.js)
+        gene2i = {self.js[i]:i for i in range(len(self.js))}
+        for i in range(len(data)):
+            data_[gene2i[data[i]]] += 1
+        data = [x/len(data) for x in data_]
+        for i in range(len(tcrpeg)):
+            tcrpeg_[gene2i[tcrpeg[i]]] += 1
+        tcrpeg = [x/len(tcrpeg) for x in tcrpeg_] #fres
+        order=np.argsort(data)[::-1]
+        x_axis = np.array(list(range(len(self.js))))          
+        plt.errorbar(x_axis-0.2, np.array(data)[order] , fmt='b+', linewidth=4, capsize=3,label='Data',markersize=10)
+        plt.errorbar(x_axis+0.2, np.array(tcrpeg)[order] , fmt='ro', linewidth=1, capsize=3,label='TCRpeg',markersize=3)        
+        plt.xticks(x_axis,np.array(self.js)[order])
+        plt.xticks(rotation=45)
+        plt.ylabel('Frequency',size=12)
+        plt.xlabel('J Gene',size=12)
+        plt.grid()
+        plt.legend()
+        #plt.title('J USAGE DISTRIBUTION',fontsize=20)
+        plt.tight_layout()
+        if fig_name is not None:
+            plt.savefig('results/pictures/'+fig_name + '.jpg',dpi=200)
+        else: plt.show()
+
+    def V_Dis(self,data,tcrpeg,fig_name=None):
+        '''
+        each input should be in the format of (mean_freqs,errs)
+        also should be one-to-one with the gene list
+        '''   
+        plt.figure(figsize=(12,4))
+        data_, tcrpeg_ = [0]*len(self.vs),[0] * len(self.vs)
+        gene2i = {self.vs[i]:i for i in range(len(self.vs))}
+        for i in range(len(data)):
+            data_[gene2i[data[i]]] += 1
+        data = [x/len(data) for x in data_]
+        for i in range(len(tcrpeg)):
+            tcrpeg_[gene2i[tcrpeg[i]]] += 1
+        tcrpeg = [x/len(tcrpeg) for x in tcrpeg_]
+        order=np.argsort(data)[::-1]
+        x_axis = np.array(list(range(len(self.vs))))
+        plt.errorbar(x_axis-0.2, np.array(data)[order] , fmt='b+', linewidth=4, capsize=5,label='Data',markersize=8)
+        plt.errorbar(x_axis+0.2, np.array(tcrpeg)[order] , fmt='ro', linewidth=1, capsize=3,label='TCRpeg',markersize=3)
+                
+        plt.xticks(x_axis,np.array(self.vs)[order])
+        plt.xticks(rotation=45)
+        plt.ylabel('Frequency',size=12)
+        plt.xlabel('V Gene',size=12)
         plt.grid()
         plt.legend()
         #plt.title('J USAGE DISTRIBUTION',fontsize=20)
