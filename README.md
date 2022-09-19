@@ -59,5 +59,5 @@ We check email often, so for instant enquiries, please contact us via [email](ma
 
 ## License
 
-Free use of soNNia is granted under the terms of the GNU General Public License version 3 (GPLv3).
+Free use of TCRpeg is granted under the terms of the GNU General Public License version 3 (GPLv3).
 
