@@ -41,7 +41,30 @@ new_tcrs = model.generate_tcrpeg(num_to_gen=1000, batch_size= 100)    #generatio
 embs = model.get_embedding(tcrs)    #embeddings for tcrs
 ```
 
- We provide a tutorial jupyter notebook named [tutorial.ipynb](https://github.com/jiangdada1221/TCRpeg/blob/main/tutorial.ipynb). It contains most of the functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. The python scripts and their usages are shown below: <br />
+ We provide a tutorial jupyter notebook named [tutorial.ipynb](https://github.com/jiangdada1221/TCRpeg/blob/main/tutorial.ipynb). It contains most of the functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. <br />
+
+ ## Command line usages
+
+ We have provided the scripts for the experiments in the paper via the folder [tcrpeg/scripts](https://github.com/jiangdada1221/TCRpeg/tree/main/tcrpeg/scripts). <br />
+
+ ```
+python train.py --path_train ../data/TCRs_train.csv --epoch 20 --learning_rate 0.0001 --store_path ../results/model.pth 
+```
+To train a TCRpeg (with vj) model, the data file needs to have the columns named 'seq', 'v', 'j'. Use python train.py --h for more details.<br />
+```
+python evaluate.py --test_path ../data/pdf_test.csv --model_path ../results/model.pth
+```
+To compute the Pearson correlation coefficient of the probability inference task on test set. <br />
+```
+python generate.py --model_path ../results/model.pth --n 10000 --store_path ../results/gen_seq.txt
+```
+Use the pretrained TCRpeg to generate new sequences. Use python generate.py --h for more details <br />
+```
+python classify.py --path_train ../data/train.csv --path_test ../data/test.csv --epoch 20 --learning_rate 0.0001
+```
+Use TCRpeg-c for classification task. The files should have two columns: 'seq' and 'label' <br /> 
+Note that the parameters unspecified will use the default ones (e.g. batch size) <br /><br />
+The python files and their usages are shown below: <br />
 
 | Module name                                    | Usage                                              |    
 |------------------------------------------------|----------------------------------------------------|
