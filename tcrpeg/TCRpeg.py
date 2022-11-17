@@ -370,8 +370,7 @@ class TCRpeg:
                         + "_{}.pth".format(str(epoch + 1))
                     )
     
-            if epoch != 0 and epoch % ((epochs) // 2) == 0 :
-                print('The learning rate has beed reduced')
+            if epoch != 0 and epoch % ((epochs) // 2) == 0 :                
                 optimizer.param_groups[0]["lr"] = lr * 0.2
 
         print("Done training")
@@ -513,7 +512,7 @@ class TCRpeg:
                         + "_{}.pth".format(str(epoch + 1))
                     )
             if epoch != 0 and epoch % ((epochs) // 2) == 0:
-                print('The learning rate has beed reduced')
+                # print('The learning rate has beed reduced')
                 optimizer.param_groups[0]["lr"] = lr * 0.2
 
         print("Done training")
