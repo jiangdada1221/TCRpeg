@@ -50,7 +50,7 @@ embs = model.get_embedding(tcrs)    #embeddings for tcrs
  ```
 python train.py --path_train ../data/TCRs_train.csv --epoch 20 --learning_rate 0.0001 --store_path ../results/model.pth 
 ```
-To train a TCRpeg (with vj) model, the data file needs to have the columns named 'seq', 'v', 'j'. Use python train.py --h for more details.<br />
+To train a TCRpeg (with vj) model, the data file needs to have the columns named 'seq', 'v', 'j'. Insert 'python train.py --h' for more details.<br />
 ```
 python evaluate.py --test_path ../data/pdf_test.csv --model_path ../results/model.pth
 ```
@@ -58,11 +58,11 @@ To compute the Pearson correlation coefficient of the probability inference task
 ```
 python generate.py --model_path ../results/model.pth --n 10000 --store_path ../results/gen_seq.txt
 ```
-Use the pretrained TCRpeg to generate new sequences. Use python generate.py --h for more details <br />
+Use the pretrained TCRpeg to generate new sequences. Type 'python generate.py --h' for more details <br />
 ```
 python classify.py --path_train ../data/train.csv --path_test ../data/test.csv --epoch 20 --learning_rate 0.0001
 ```
-Use TCRpeg-c for classification task. The files should have two columns: 'seq' and 'label' <br /> 
+Use TCRpeg-c for classification task. The files should have two columns: 'seq' and 'label'. Type 'python classify.py --h' for more details. <br /> 
 Note that the parameters unspecified will use the default ones (e.g. batch size) <br /><br />
 The python files and their usages are shown below: <br />
 
