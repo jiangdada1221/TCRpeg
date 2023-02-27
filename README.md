@@ -77,10 +77,24 @@ The python files and their usages are shown below: <br />
 | process_data.py                                | Construct the universal TCR pool                   |
 
 ## Contact
-
-We check email often, so for instant enquiries, please contact us via [email](mailto:jiangdada12344321@gmail.com). Or you may open an issue section.
+```
+Name: Yuepeng Jiang
+Email: yuepjiang3-c@my.cityu.edu.hk/yuj009@eng.ucsd.edu/jiangdada12344321@gmail.com
+Note: For instant query, feel free to send me an email since I check email often. Otherwise, you may open an issue section in this repository.
+```
 
 ## License
 
 Free use of TCRpeg is granted under the terms of the GNU General Public License version 3 (GPLv3).
 
+## Citation (will be published in Briefings in Bioinformatics)
+```
+@article{jiang2022deep,
+  title={Deep autoregressive generative models capture the intrinsics embedded in T-cell receptor repertoires},
+  author={Jiang, Yuepeng and Li, Shuai Cheng},
+  journal={bioRxiv},
+  pages={2022--09},
+  year={2022},
+  publisher={Cold Spring Harbor Laboratory}
+}
+```
