@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 data_files_to_include = [('', ['README.md', 'LICENSE'])]
 setup(name='tcrpeg',
-      version='1.0.5',
+      version='1.0.6',
       description='Recovering the repertoire probability, generating and encoding CDR3 sequences',
       long_description='To be added',
       url='https://github.com/jiangdada1221/TCRpeg',
