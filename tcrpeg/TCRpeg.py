@@ -211,7 +211,7 @@ class TCRpeg:
                 self.max_length,
                 num_layers=self.num_layers  ,
                 num_v = len(self.vs_list),
-                num_j = len(self.js_list)
+                num_j = len(self.js_list),device=self.device
             )
             self.vj=True
         else :
@@ -220,7 +220,7 @@ class TCRpeg:
                 self.embedding_size,
                 self.hidden_size,
                 dropout=self.dropout,
-                num_layers=self.num_layers
+                num_layers=self.num_layers,device=self.device
                 )
             self.vj=False
         model.train()
@@ -607,6 +607,10 @@ class TCRpeg:
                 decoded = [[self_.idx2aa[a] for a in seq] for seq in decoded]
                 decoded = [''.join(seq) for seq in decoded]
                 seqs = seqs + decoded
+        ori_len = len(seqs)
+        seqs = [s for s in seqs if 's' not in s]
+        if len(seqs) != ori_len:
+            print(f'Filter out {ori_len - len(seqs)} bad sequences')
             
         if record_path is not None:
             with open(record_path, "w") as f:
@@ -678,13 +682,26 @@ class TCRpeg:
                 v_pres = [self_.idx2v[i] for i in v_pre_id]
                 j_pres = [self_.idx2j[i] for i in j_pre_id]
                 vs_whole = vs_whole + list(v_pres)
-                js_whole = js_whole + list(j_pres)
-            
+                js_whole = js_whole + list(j_pres)        
+        seqs_f,vs_f,js_f = [],[],[]
+        sum_ = 0
+        for i in range(len(seqs)):
+            if 's' in seqs[i]:
+                sum_ += 1
+                continue
+            if len(seqs[i]) == 0:
+                continue
+            seqs_f.append(seqs[i])
+            vs_f.append(vs_whole[i])
+            js_f.append(js_whole[i])
+        if sum_ > 0:
+            print(f'Filter out {sum_} bad sequences')
+
         if record_path is not None:
             with open(record_path, "w") as f:
-                for i,s in enumerate(seqs):
-                    f.write(s + ',' + vs_whole[i] + ',' + js_whole[i] + "\n")
-        return [seqs,vs_whole,js_whole]
+                for i,s in enumerate(seqs_f):
+                    f.write(s + ',' + vs_f[i] + ',' + js_f[i] + "\n")
+        return [seqs_f,vs_f,js_f]
 
     def get_embedding(self,seqs,last_layer=False):
         '''
