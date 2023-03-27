@@ -87,14 +87,16 @@ Note: For instant query, feel free to send me an email since I check email often
 
 Free use of TCRpeg is granted under the terms of the GNU General Public License version 3 (GPLv3).
 
-## Citation (will be published in Briefings in Bioinformatics)
+## Citation 
 ```
-@article{jiang2022deep,
+@article{jiang2023deep,
   title={Deep autoregressive generative models capture the intrinsics embedded in T-cell receptor repertoires},
   author={Jiang, Yuepeng and Li, Shuai Cheng},
-  journal={bioRxiv},
-  pages={2022--09},
-  year={2022},
-  publisher={Cold Spring Harbor Laboratory}
+  journal={Briefings in Bioinformatics},
+  volume={24},
+  number={2},
+  pages={bbad038},
+  year={2023},
+  publisher={Oxford University Press}
 }
 ```
