@@ -274,6 +274,55 @@ class TCRpeg:
             probs = torch.where(target > 0, probs, torch.FloatTensor([0.0])) #mask out the probs of padding positions
             logpx_given_z = probs.sum(dim=-1).numpy()
             return logpx_given_z  # B, log probability
+    def sampling_tcrpeg_vj(self, seqs):
+        '''        
+        @seqs: list containing CDR3 sequences
+        #return: the log_prob of the input sequences
+        '''
+        vs,js = seqs[1],seqs[2]
+        vs_idx,js_idx = [self.v2idx[v] for v in vs],[self.j2idx[v] for v in js]
+        seqs = seqs[0]
+        with torch.no_grad():
+            batch_size = len(seqs)
+            inputs, targets, lengths = self.aas2embs(seqs)
+            inputs, targets, lengths = (
+                torch.LongTensor(inputs).to(self.device),
+                torch.LongTensor(targets).to(self.device),
+                torch.LongTensor(lengths).to(self.device),
+            )
+            logp,v_pre,j_pre,_ = self.model(inputs, lengths,need_hidden=True)  
+            
+            logp = logp.detach().cpu()
+            targets = targets.detach().cpu()
+
+            targets = targets - 1
+
+            target = targets[:, : torch.max(lengths).item()].contiguous()  # 0 is pad
+            # logpx_z = torch.zeros(batch_size,torch.max(lengths).items())
+            target = torch.where(target >= 0, target, 0)  # B x max_length ,0-21
+            target_onehot = torch.FloatTensor(batch_size, torch.max(lengths).item(), 22)
+
+            target_onehot.zero_()
+            target_onehot.scatter_(
+                2, target.view(batch_size, torch.max(lengths).item(), 1), 1
+            )  # B x l x 22\
+
+            probs = target_onehot * logp
+
+            probs = probs.sum(dim=-1)  # B x L
+
+            probs = torch.where(target > 0, probs, torch.FloatTensor([0.0])) #mask out the probs of padding positions
+            logpx_given_z = probs.sum(dim=-1).numpy()
+            v_pre = nn.functional.log_softmax(v_pre,-1)
+            j_pre = nn.functional.log_softmax(j_pre,-1)
+            v_probs,j_probs = [],[]
+            for i in range(len(vs_idx)):
+                v_probs.append(v_pre[i,vs_idx[i]].item())
+                j_probs.append(j_pre[i,js_idx[i]].item())
+            v_probs = np.array(v_probs)
+            j_probs = np.array(j_probs)
+            probs = logpx_given_z + v_probs + j_probs
+            return probs  # B, log probability
 
     def sampling_tcrpeg_batch(self, seqs,batch_size=10000):
         '''
@@ -290,6 +339,25 @@ class TCRpeg:
                 if len(seq_batch) == 0:
                     continue
                 log_probs = self.sampling_tcrpeg(seq_batch) #change here
+                logpx_given_z[i*batch_size : end] = log_probs
+            return logpx_given_z  # B, log probability
+        
+    def sampling_tcrpeg_vj_batch(self, seqs,batch_size=10000):
+        '''
+        @seqs: list containing CDR3 sequences
+        #return: the log_prob of the input sequences
+        Inferring in batch
+        '''
+        logpx_given_z = np.zeros(len(seqs[0]))
+        with torch.no_grad():
+            #batch_size = len(seqs)
+            for i in tqdm(range(int(len(seqs[0])/batch_size)+1)):
+                end = len(seqs[0]) if (i+1) * batch_size > len(seqs[0]) else (i+1) * batch_size
+                # seq_batch = seqs[i * batch_size : end]
+                seq_batch = [s[i * batch_size : end] for s in seqs]
+                if len(seq_batch[0]) == 0:
+                    continue
+                log_probs = self.sampling_tcrpeg_vj(seq_batch) #change here
                 logpx_given_z[i*batch_size : end] = log_probs
             return logpx_given_z  # B, log probability
 
