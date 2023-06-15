@@ -33,12 +33,20 @@ model = TCRpeg(embedding_path='tcrpeg/data/embedding_32.txt',load_data=True, pat
 #'tcrs' is the TCR repertoire ([tcr1,tcr2,....])
 model.create_model() #initialize the TCRpeg model
 model.train_tcrpeg(epochs=20, batch_size= 32, lr=1e-3) 
+#defining and training of TCRpeg_vj can be found in tutorial.ipynb
 ```
 Use the pretrained TCRpeg model for downstream applications:
 ```python
 log_probs = model.sampling_tcrpeg_batch(tcrs)   #probability inference
 new_tcrs = model.generate_tcrpeg(num_to_gen=1000, batch_size= 100)    #generation
 embs = model.get_embedding(tcrs)    #embeddings for tcrs
+```
+#### Updates
+The downstream applications can be also applied to CDR3+V+J data
+```python
+new_clonetypes = model.generate_tcrpeg_vj(num_to_gen=1000, batch_size= 100) #generation
+log_probs_clonetypes = model.sampling_tcrpeg_batch(clone_types) # get the probs of CDR3_V_J
+#size of clone_types: 3xlength ([[cdr1,cdr2,cdr3...],[v1,v2,v3..],[j1,j2,j3...])
 ```
 
  We provide a tutorial jupyter notebook named [tutorial.ipynb](https://github.com/jiangdada1221/TCRpeg/blob/main/tutorial.ipynb). It contains most of the functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. <br />
