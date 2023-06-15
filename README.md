@@ -46,7 +46,7 @@ The downstream applications can be also applied to CDR3+V+J data
 ```python
 new_clonetypes = model.generate_tcrpeg_vj(num_to_gen=1000, batch_size= 100) #generation
 log_probs_clonetypes = model.sampling_tcrpeg_batch(clone_types) # get the probs of CDR3_V_J
-#size of clone_types: 3xlength ([[cdr1,cdr2,cdr3...],[v1,v2,v3..],[j1,j2,j3...])
+#size of clone_types: 3xlength ([[cdr1,cdr2,cdr3...],[v1,v2,v3..],[j1,j2,j3...]])
 ```
 
  We provide a tutorial jupyter notebook named [tutorial.ipynb](https://github.com/jiangdada1221/TCRpeg/blob/main/tutorial.ipynb). It contains most of the functional usages of TCRpeg which mainly consist of three parts: probability inference, numerical encodings & downstream classification, and generation. <br />
