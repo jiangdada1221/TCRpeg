@@ -6,7 +6,9 @@ TCRpeg is a deep probabilistic neural network framework used for inferring proba
 ## Installation
 TCRpeg is a python software implemented based on the deeplearning library - Pytorch. It is available on PyPI and can be downloaded and installed via pip: <br />
  ```pip install tcrpeg``` <br />
-TCRpeg can be also installed by cloning the Github repository and using the pip (__recommended__): <br />
+(__recommended__) TCRpeg can be also installed by __cloning__ the Github repository and using the pip : <br />
+```git clone https://github.com/jiangdada1221/TCRpeg.git``` <br />
+```cd TCRpeg``` <br />
  ```pip install .``` <br />
 The required software dependencies are listed below:
  ```
