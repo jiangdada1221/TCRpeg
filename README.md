@@ -38,7 +38,7 @@ model.train_tcrpeg(epochs=20, batch_size= 32, lr=1e-3)
 #defining and training of TCRpeg_vj can be found in tutorial.ipynb
 ```
 Load the default models
-```pyton
+```python
 model = TCRpeg(embedding_path='tcrpeg/data/embedding_32.txt',load_data=False)
 model.create_model(load=True,path='tcrpeg/models/tcrpeg.pth')
 #TCRpeg_vj model
